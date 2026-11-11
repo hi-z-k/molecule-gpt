@@ -209,6 +209,11 @@ def get_datasets(cfg, block_size):
     val_rows = load_csv(os.path.join(cfg.data_dir, "val.csv"))
     if getattr(cfg, "smoke", False):
         train_rows, val_rows = train_rows[:2000], val_rows[:200]
+    # cap dataset size for quick ablation runs
+    max_rows = int(getattr(cfg, "max_rows", 0) or 0)
+    if max_rows > 0:
+        train_rows = train_rows[:max_rows]
+        val_rows = val_rows[:max(1, max_rows // 20)]
     chars = set()
     for smi, _, _ in train_rows:
         chars.update(smi)

@@ -100,8 +100,8 @@ def load_checkpoint(path, device="cpu"):
 
 def main():
     p = argparse.ArgumentParser(description="Sample text from a trained checkpoint")
-    p.add_argument("--ckpt", default="checkpoints/shakespeare/best.pt")
-    p.add_argument("--prompt", default="\n")
+    p.add_argument("--ckpt", default="checkpoints/smiles/best.pt")
+    p.add_argument("--prompt", default="", help="SMILES prefix to continue; empty starts from <bos>")
     p.add_argument("--temperature", type=float, default=0.8)
     p.add_argument("--top_k", type=int, default=50)
     p.add_argument("--max_new_tokens", type=int, default=300)

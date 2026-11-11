@@ -45,6 +45,8 @@ def build_data(cfg, block_size):
         return x.to(device), y.to(device)
 
     train_smiles = {r[0] for r in train_ds.rows}
+    # report the rows actually in use, which --max_rows / --smoke may have capped below meta.json
+    meta = dict(meta, n_train=len(train_ds), n_val=len(val_ds))
     return get_batch, tok, meta, train_smiles
 
 

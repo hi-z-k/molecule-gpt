@@ -38,6 +38,7 @@ class TrainConfig:
     n_bins: int = 10            # quantile bins per property
     eval_samples: int = 500     # molecules generated at every full eval
     smoke: bool = False
+    max_rows: int = 0           # cap train/val rows (0 = use all); for fast ablation runs
 
 
 def _str2bool(v):

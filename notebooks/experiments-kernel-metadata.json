@@ -1,0 +1,17 @@
+{
+  "id": "hizkealyeshitila/molecule-gpt-experiments",
+  "title": "molecule-gpt-experiments",
+  "code_file": "experiments_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "hizkealyeshitila/molecule-gpt"
+  ],
+  "model_sources": []
+}

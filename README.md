@@ -13,6 +13,35 @@ close, ring-opening digits must pair up (`C1...C1`), and every atom has to end
 up with a legal valence. RDKit either parses the output or it does not, which
 makes the result a number rather than an opinion.
 
+## Model configuration
+
+The trained model uses the defaults in `gpt/config.py`.
+
+| setting | value |
+| --- | --- |
+| `block_size` | 128 |
+| `n_layer` | 8 |
+| `n_head` | 8 |
+| `n_embd` | 256 |
+| head dimension (`n_embd / n_head`) | 32 |
+| `dropout` | 0.1 |
+| vocab size | set from the data: 4 base specials + 22 property-bin specials + the distinct SMILES characters in the training split |
+
+Training settings:
+
+| setting | value |
+| --- | --- |
+| `batch_size` | 256 |
+| optimizer | AdamW, betas 0.9 / 0.95 |
+| `lr` / `min_lr` | 3e-4 / 3e-5 (cosine decay) |
+| `weight_decay` | 0.1 |
+| `warmup_steps` | 200 |
+| `grad_clip` | 1.0 |
+| `max_minutes` | 150 (training is time-boxed; stops here or at `max_steps`, whichever comes first) |
+
+The parameter count is printed at the start of training and recorded in
+`results/smiles_log.json`. Any field above can be overridden as a `--flag`.
+
 ## Results
 
 | metric | meaning | score |
@@ -73,10 +102,44 @@ python -m mol.sample --qed_bin 0 --n 1000        # ask for the opposite end
 | `mol/data.py` | MOSES download, canonicalization, property binning, dataset |
 | `mol/metrics.py` | validity / uniqueness / novelty, QED, logP, molecular weight |
 | `mol/sample.py` | batched generation CLI and scoring report |
+| `scripts/experiments.py` | the three experiments: temperature, context, architecture ablation |
 | `notebooks/train_kaggle.ipynb` | the full run on a Kaggle T4 |
+| `notebooks/experiments_kaggle.ipynb` | runs those experiments on a Kaggle T4, reusing the trained checkpoint |
 
 Validity is also measured on fresh samples at every eval step, so the training
 log shows the grammar being acquired rather than just the loss going down.
+
+## Experiments
+
+`scripts/experiments.py` runs three experiments on the model:
+
+1. `temperature` — validity, uniqueness and novelty of unconditional samples
+   across sampling temperatures. Temperature 0 is greedy decoding, so every
+   sample is identical.
+2. `context` — two measurements. The first is mean cross-entropy at each
+   position index over the validation set. The second is the validity of
+   completions of real validation-molecule prefixes of increasing length
+   (0, 5, 10, 20 and 40 characters).
+3. `ablation` — trains small models from scratch, varying one architectural
+   parameter at a time (`--axis n_layer|n_head|n_embd|all`), with everything
+   else and the data subset held fixed.
+
+```bash
+python scripts/experiments.py temperature --n 2000
+python scripts/experiments.py context --n 1000
+python scripts/experiments.py ablation --axis all
+```
+
+`temperature` and `context` need a trained checkpoint (`--ckpt`, default
+`checkpoints/smiles/best.pt`); `ablation` does not. Each experiment writes a
+JSON of raw numbers plus a PNG into `--out_dir` (default `results/experiments`),
+and `summary.md` there collects every table in markdown.
+
+The ablation runs are short and deliberately small. They are controlled
+comparisons between settings, not converged models, so they support claims
+about relative trends only. The `--ab_*` flags (`--ab_steps`, `--ab_rows`,
+`--ab_batch_size`, `--ab_block_size`, `--ab_max_minutes`, and the
+`--ab_base_*` baseline flags) exist to rerun them larger on a GPU.
 
 ## Why this is worth doing
 
@@ -104,3 +167,8 @@ by `scripts/prepare_data.py`; nothing large is committed to this repo.
 ## License
 
 MIT — see `LICENSE`.
+
+## Technical report
+
+`REPORT.md` explains the Transformer architecture from "Attention Is All You
+Need" and how this implementation relates to it.
