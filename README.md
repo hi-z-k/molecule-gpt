@@ -170,5 +170,6 @@ MIT — see `LICENSE`.
 
 ## Technical report
 
-`REPORT.md` explains the Transformer architecture from "Attention Is All You
-Need" and how this implementation relates to it.
+`report/report.pdf` explains the Transformer architecture from "Attention Is All
+You Need" and how this implementation relates to it. The source is
+`report/report.tex`; rebuild it with `latexmk -pdf report.tex` from inside `report/`.
