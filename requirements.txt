@@ -1,0 +1,8 @@
+torch
+numpy
+matplotlib
+requests
+rdkit
+pytest
+tqdm
+kaggle

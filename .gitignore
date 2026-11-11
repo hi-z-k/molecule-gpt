@@ -1,0 +1,9 @@
+data/processed/
+data/raw/
+checkpoints/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+export/
